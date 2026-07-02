@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>International Development Academy — Competitive Battlecard</title>
+<style>
+  :root{
+    --bg-primary:#0a0d14; --bg-elevated:#0f131c; --bg-surface:#161b28; --bg-hover:#1e2536;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.16);
+    --text-primary:#fff; --text-secondary:rgba(255,255,255,.72); --text-muted:rgba(255,255,255,.48);
+    --accent:#8b5cf6; --accent-hover:#7c3aed; --accent-soft:rgba(139,92,246,.14);
+    --you:#10b981; --they:#ef4444; --tie:#f59e0b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg-primary);color:var(--text-primary);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1220px;margin:0 auto;padding:0 20px 80px}
+  header.top{padding:38px 0 26px;border-bottom:1px solid var(--border)}
+  .eyebrow{color:var(--accent);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  h1{font-size:30px;font-weight:800;margin:8px 0 6px;letter-spacing:-.02em}
+  .meta{color:var(--text-muted);font-size:13px}
+  .meta strong{color:var(--text-secondary);font-weight:600}
+  nav.tabs{display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:20;
+    background:var(--bg-primary);padding:16px 0;border-bottom:1px solid var(--border)}
+  .tab{background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border);
+    padding:9px 15px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap}
+  .tab:hover{background:var(--bg-hover);color:var(--text-primary)}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tab.you{border-color:rgba(16,185,129,.4)}
+  .tab.you.active{background:var(--you);border-color:var(--you);color:#062a1e}
+  section.tab-content{display:none;padding-top:26px;animation:fade .25s ease}
+  section.tab-content.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{font-size:21px;font-weight:750;margin:6px 0 4px;letter-spacing:-.01em}
+  h3{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--text-primary)}
+  .sub{color:var(--text-muted);font-size:13.5px;margin-bottom:20px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:820px){.g2{grid-template-columns:1fr}}
+  .card{background:var(--bg-surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px}
+  .card.elev{background:var(--bg-elevated)}
+  ul{list-style:none}
+  li{position:relative;padding:5px 0 5px 20px;font-size:14px;color:var(--text-secondary)}
+  li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  li.win::before{background:var(--you)} li.lose::before{background:var(--they)} li.tie::before{background:var(--tie)}
+  li strong{color:var(--text-primary);font-weight:650}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .matrix-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:13px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;min-width:105px}
+  thead th{background:var(--bg-elevated);position:sticky;top:74px;font-size:11px;text-transform:uppercase;
+    letter-spacing:.03em;color:var(--text-muted);font-weight:700;z-index:5}
+  thead th.you-col{color:var(--you)}
+  tbody th{font-weight:650;color:var(--text-primary);background:var(--bg-elevated);white-space:nowrap;
+    position:sticky;left:0;z-index:4;min-width:126px}
+  td.you-col{background:rgba(16,185,129,.06)}
+  tr:last-child td,tr:last-child th{border-bottom:none}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.02em}
+  .p-you{background:rgba(16,185,129,.16);color:#34d399} .p-they{background:rgba(239,68,68,.16);color:#f87171}
+  .p-tie{background:rgba(245,158,11,.16);color:#fbbf24} .p-neu{background:var(--bg-hover);color:var(--text-secondary)}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:13px 16px;border-radius:0 10px 10px 0;font-size:14px;color:var(--text-secondary);margin:4px 0 20px}
+  .callout.warn{border-color:var(--they);background:rgba(239,68,68,.09)}
+  .callout.good{border-color:var(--you);background:rgba(16,185,129,.09)}
+  .tag{display:inline-block;background:var(--bg-hover);border:1px solid var(--border);color:var(--text-secondary);
+    font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;margin:0 5px 5px 0}
+  .prof{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;font-size:13.5px}
+  .prof dt{color:var(--text-muted);font-weight:600} .prof dd{color:var(--text-secondary)}
+  .threat-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-size:12.5px;color:var(--text-muted)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--text-muted);font-size:12px}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  .disclaimer{font-size:11.5px;color:var(--text-muted);font-style:italic;margin-top:8px}
+  .scrollhint{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Competitive Battlecard · Strategic Planning</div>
+    <h1>International Development Academy vs. the Global Player-Development Field</h1>
+    <p class="meta">Generated <strong>July 2, 2026</strong> · Segment: <strong>International residential soccer academies + player development & placement</strong> · 12 competitors profiled: <strong>SIA · Kaptiva · WOSPAC · Marcet · ISA · IFX · Eture · Barça Residency USA · IMG · i2i · IOF · Juventus Residency</strong></p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="matrix">Comparison Matrix</button>
+    <button class="tab you" data-tab="ida">IDA (You)</button>
+    <button class="tab" data-tab="sia">SIA Academy</button>
+    <button class="tab" data-tab="kaptiva">Kaptiva</button>
+    <button class="tab" data-tab="wospac">WOSPAC</button>
+    <button class="tab" data-tab="marcet">Marcet</button>
+    <button class="tab" data-tab="eture">Eture</button>
+    <button class="tab" data-tab="isa">ISA</button>
+    <button class="tab" data-tab="ifx">IFX</button>
+    <button class="tab" data-tab="barca">Barça Residency USA</button>
+    <button class="tab" data-tab="img">IMG Academy</button>
+    <button class="tab" data-tab="i2i">i2i</button>
+    <button class="tab" data-tab="iof">IOF Academy</button>
+    <button class="tab" data-tab="juventus">Juventus Residency</button>
+    <button class="tab" data-tab="strategy">Strategic Takeaways</button>
+  </nav>
+
+  <!-- ===================== MATRIX ===================== -->
+  <section id="matrix" class="tab-content active">
+    <h2>Head-to-Head Comparison</h2>
+    <p class="sub">Where IDA sits against the leading international residential academies and placement programs. The truest rivals combine <em>residency + academics + dual college/pro placement</em> — not just one piece.</p>
+
+    <div class="threat-legend">
+      <span><span class="dot" style="background:var(--you)"></span>IDA advantage</span>
+      <span><span class="dot" style="background:var(--they)"></span>Competitor advantage</span>
+      <span><span class="dot" style="background:var(--tie)"></span>Comparable / mixed</span>
+    </div>
+    <p class="scrollhint">↔ Scroll table horizontally to see all competitors. First column stays fixed.</p>
+
+    <div class="matrix-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th class="you-col">IDA</th>
+            <th>SIA</th>
+            <th>Kaptiva</th>
+            <th>WOSPAC</th>
+            <th>Marcet</th>
+            <th>Eture</th>
+            <th>ISA</th>
+            <th>IFX</th>
+            <th>Barça USA</th>
+            <th>IMG</th>
+            <th>i2i</th>
+            <th>IOF</th>
+            <th>Juventus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>Model</th><td class="you-col">Residency + academics + placement + analytics</td><td>Residency + academics</td><td>Boarding + prep school</td><td>Residency + placement</td><td>Residency + academics</td><td>Gap yr + agency</td><td>Gap yr in pro clubs</td><td>Immersion + agency</td><td>Residency + academics</td><td>Boarding school + academy</td><td>Football + UK degree</td><td>Residency + academics</td><td>Residency + academics</td></tr>
+          <tr><th>Location(s)</th><td class="you-col">Spain · USA · Brazil · Italy/UK</td><td>Valencia (ES)</td><td>Barcelona (ES)</td><td>Barcelona (ES)</td><td>Barcelona (ES)</td><td>Valencia (ES)</td><td>Spain (multi-club)</td><td>ES/DE/ENG</td><td>Arizona (US)</td><td>Florida (US)</td><td>Newcastle/Leeds (UK)</td><td>Derbyshire (UK)</td><td>Turin (IT)</td></tr>
+          <tr><th>Ages</th><td class="you-col">14–24</td><td>13–22</td><td>12–18</td><td>10–24</td><td>8–21</td><td>14–20</td><td>~17–20</td><td>16+</td><td>~13–18</td><td>11–18+PG</td><td>18+</td><td>12–19</td><td>14–19</td></tr>
+          <tr><th>Pathway</th><td class="you-col"><span class="pill p-you">College + Pro</span></td><td>Both</td><td>Both</td><td>Both (US college++)</td><td>Both (pro lean)</td><td>US college++</td><td>Both</td><td>Both</td><td>Both</td><td>College-first</td><td>UK degree</td><td>Both</td><td>Pro-dev</td></tr>
+          <tr><th>Multi-country</th><td class="you-col"><span class="pill p-you">4 countries</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-tie">3</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td><td><span class="pill p-neu">1</span></td></tr>
+          <tr><th>Brand halo</th><td class="you-col"><span class="pill p-tie">Cruzeiro tie</span></td><td>FC Porto method</td><td>—</td><td>UE Cornellà</td><td>Marcet</td><td>—</td><td>Girona FC</td><td>—</td><td><span class="pill p-they">FC Barcelona</span></td><td><span class="pill p-they">IMG</span></td><td>Universities</td><td>—</td><td><span class="pill p-they">Juventus</span></td></tr>
+          <tr><th>Analytics product</th><td class="you-col"><span class="pill p-you">Taka</span></td><td>—</td><td>—</td><td>Reels</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>NCSA data</td><td>—</td><td>—</td><td>Match analysts</td></tr>
+          <tr><th>Threat to IDA</th><td class="you-col">—</td><td><span class="pill p-they">High</span></td><td><span class="pill p-they">High</span></td><td><span class="pill p-they">High</span></td><td><span class="pill p-tie">Med-High</span></td><td><span class="pill p-they">High</span></td><td><span class="pill p-tie">Med</span></td><td><span class="pill p-tie">Med</span></td><td><span class="pill p-tie">Med-High</span></td><td><span class="pill p-tie">Med</span></td><td><span class="pill p-tie">Med</span></td><td><span class="pill p-tie">Med-High</span></td><td><span class="pill p-tie">Med-High</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="margin-top:30px">Quick Win / Loss Guide</h2>
+    <div class="grid g2">
+      <div class="card"><h3>SIA Academy <span class="pill p-they">High</span></h3><ul>
+        <li class="lose"><strong>Closest mirror:</strong> Valencia residency + accredited academics + dual pathway — same region, same buyer.</li>
+        <li class="win"><strong>You win on multi-country footprint + Taka analytics + Cruzeiro/Florida options.</strong></li></ul></div>
+      <div class="card"><h3>Kaptiva / WOSPAC <span class="pill p-they">High</span></h3><ul>
+        <li class="lose"><strong>Barcelona boarding + NCAA prep school</strong>; WOSPAC has the most explicit US-college placement machinery.</li>
+        <li class="win"><strong>You win on geographic breadth + pro-club ties + analytics.</strong></li></ul></div>
+      <div class="card"><h3>Eture <span class="pill p-they">High</span></h3><ul>
+        <li class="lose"><strong>Valencia overlap + placement DNA:</strong> claims 92% NCAA placement, $30M+ scholarships, Missouri State cert.</li>
+        <li class="win"><strong>You win on multi-country + pro pathway + brand ties.</strong></li></ul></div>
+      <div class="card"><h3>Marcet <span class="pill p-tie">Med-High</span></h3><ul>
+        <li class="lose"><strong>Large, established Barcelona brand</strong> (~200 players/yr) + academics.</li>
+        <li class="win"><strong>You win on US-college placement focus + multi-country + analytics.</strong></li></ul></div>
+      <div class="card"><h3>Barça Residency USA / IMG <span class="pill p-tie">Med-High / Med</span></h3><ul>
+        <li class="lose"><strong>Brand halo + scale:</strong> FC Barcelona and IMG pull families weighing US vs. Europe.</li>
+        <li class="win"><strong>You win on true European immersion + multi-country + dual pathway.</strong></li></ul></div>
+      <div class="card"><h3>i2i / IOF (UK) <span class="pill p-tie">Med / Med-High</span></h3><ul>
+        <li class="tie"><strong>Cover the UK flank:</strong> IOF mirrors your model (residency + academics + US placement); i2i is a UK-degree route.</li>
+        <li class="win"><strong>You win on multi-country + pro pathway breadth.</strong></li></ul></div>
+      <div class="card"><h3>ISA / IFX <span class="pill p-tie">Med</span></h3><ul>
+        <li class="tie"><strong>Spain immersion + placement</strong> (ISA gap-year in pro clubs; IFX 20+ yr agency).</li>
+        <li class="win"><strong>You win on integrated residency + academics + analytics.</strong></li></ul></div>
+      <div class="card"><h3>Juventus Residency <span class="pill p-tie">Med-High</span></h3><ul>
+        <li class="lose"><strong>Juventus brand + Italy residency</strong> (ASU Prep academics) — the Italy analog to your Rome ambitions.</li>
+        <li class="win"><strong>You win on US-college placement engine (their weak spot) + multi-country.</strong></li></ul></div>
+    </div>
+    <div class="callout" style="margin-top:16px"><strong>Net position:</strong> The Spain market is <strong>crowded and commoditizing</strong> (SIA, Kaptiva, WOSPAC, Marcet, Eture, IFX all in one country). IDA's clearest moat is what none of them have: a <strong>multi-country footprint (Spain + USA + Brazil + Italy/UK), a dual college+pro pathway, and the Taka analytics layer.</strong> Brand-name rivals (Barça, IMG, Juventus) win on halo; you win on breadth + integrated development + placement.</div>
+  </section>
+
+  <!-- ===================== IDA ===================== -->
+  <section id="ida" class="tab-content">
+    <h2>International Development Academy — Your Position</h2>
+    <p class="sub">The foundation for the strategic plan.</p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Founded</dt><dd>2020</dd>
+        <dt>Model</dt><dd>Global residential academy + academics + college/pro placement + analytics</dd>
+        <dt>Locations</dt><dd>Valencia (ES) · Florida/DME (US) · Brazil/Cruzeiro · Rome/UK</dd>
+        <dt>Ages</dt><dd>~14–24</dd>
+        <dt>Analytics</dt><dd><strong>Taka</strong> (player data + video)</dd>
+        <dt>Outcomes</dt><dd>100+ college commits; Jeremy de Leon (IDA Spain → Real Madrid)</dd>
+      </dl></div>
+      <div class="card"><h3>Core differentiators</h3><ul>
+        <li class="win"><strong>Multi-country footprint</strong> — Spain + USA + Brazil + Italy/UK. No single rival matches this; the Spain academies are one-city operators.</li>
+        <li class="win"><strong>Dual pathway</strong> — genuine college <em>and</em> pro placement, not just one.</li>
+        <li class="win"><strong>Taka analytics</strong> — a data/video product layer most academies lack.</li>
+        <li class="win"><strong>Pro-club partnerships</strong> (Cruzeiro; DME in FL) give authentic environments and brand credibility.</li>
+      </ul></div>
+    </div>
+    <div class="callout warn" style="margin-top:16px"><strong>Watch-outs:</strong> Competitors publish hard placement stats (Eture: 92% NCAA, $30M+ scholarships; WOSPAC's explicit SAT/NCAA machinery) — IDA should quantify and publish its own. Brand-name rivals (Barça, IMG, Juventus) carry a halo IDA must counter with outcomes + breadth.</div>
+  </section>
+
+  <!-- ===================== SIA ===================== -->
+  <section id="sia" class="tab-content">
+    <h2>SIA Academy (Soccer Inter-Action)</h2>
+    <p class="sub">The closest mirror to IDA. <span class="pill p-they">Threat: High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Enguera, Valencia (Spain)</dd>
+        <dt>Model</dt><dd>Residential academy + academics (British School Xàtiva + US online HS) + camps</dd>
+        <dt>Ages</dt><dd>13–22</dd>
+        <dt>Method</dt><dd>UEFA-Pro staff; FC Porto methodology; own club (CF Intercity ties)</dd>
+        <dt>Pathway</dt><dd>Pro + US college</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Valencia</span><span class="tag">Accredited academics</span><span class="tag">Dual pathway</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Same region + model:</strong> Valencia residency, academics, dual pathway — targets the same families as IDA Spain.</li>
+        <li class="win"><strong>Multi-country:</strong> IDA offers US/Brazil/Italy routes SIA can't.</li>
+        <li class="win"><strong>Taka analytics + Cruzeiro/DME partnerships.</strong></li>
+      </ul></div>
+    </div>
+    <div class="callout warn"><strong>Direct Valencia rival.</strong> Compete on breadth (multi-country), analytics, and published outcomes vs. their single-site depth.</div>
+  </section>
+
+  <!-- ===================== KAPTIVA ===================== -->
+  <section id="kaptiva" class="tab-content">
+    <h2>Kaptiva Sports Academy</h2>
+    <p class="sub">Barcelona boarding academy. <span class="pill p-they">Threat: High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Barcelona (Spain)</dd>
+        <dt>Model</dt><dd>Residential boarding + NCAA-approved online prep (AESA); own on-campus residence</dd>
+        <dt>Ages</dt><dd>12–18</dd>
+        <dt>Pathway</dt><dd>Pro + US college</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Barcelona</span><span class="tag">Prep school</span><span class="tag">Boarding</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Premium boarding + integrated NCAA-approved prep school.</strong></li>
+        <li class="win"><strong>Multi-country footprint + older-age (to 24) programs + analytics.</strong></li>
+        <li class="win"><strong>Pro pathway breadth</strong> (Cruzeiro/Brazil, Italy).</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Premium Barcelona analog.</strong> Match on academic rigor; differentiate on geography + pro-pathway + data.</div>
+  </section>
+
+  <!-- ===================== WOSPAC ===================== -->
+  <section id="wospac" class="tab-content">
+    <h2>WOSPAC</h2>
+    <p class="sub">Strongest US-college placement machinery. <span class="pill p-they">Threat: High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Barcelona (Spain)</dd>
+        <dt>Model</dt><dd>Residency + IB/online academics + explicit US-college placement (SAT, NCAA, highlight reels); Gap Year</dd>
+        <dt>Ages</dt><dd>10–24</dd>
+        <dt>Pathway</dt><dd>US college (strong) + pro via UE Cornellà</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">US-college engine</span><span class="tag">Wide age band</span><span class="tag">Pro pipeline</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Explicit, well-built US-college placement process</strong> (SAT/NCAA/reels) — a direct challenge to IDA's core value.</li>
+        <li class="win"><strong>Multi-country + Taka analytics + brand-club environments.</strong></li>
+        <li class="tie"><strong>Same wide age band (10–24)</strong> — head-to-head for the same families.</li>
+      </ul></div>
+    </div>
+    <div class="callout warn"><strong>Placement is their weapon.</strong> IDA must publish comparable placement data to compete on the college axis.</div>
+  </section>
+
+  <!-- ===================== MARCET ===================== -->
+  <section id="marcet" class="tab-content">
+    <h2>Marcet Football</h2>
+    <p class="sub">Large, established Barcelona brand. <span class="pill p-tie">Threat: Med-High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Barcelona (Spain)</dd>
+        <dt>Model</dt><dd>Residential academy (Fundación Marcet) + academics (King's InterHigh online)</dd>
+        <dt>Scale</dt><dd>~200 players/yr</dd>
+        <dt>Ages</dt><dd>8–21</dd>
+        <dt>Pathway</dt><dd>Both (development/pro lean)</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Established brand</span><span class="tag">Large intake</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Scale, tenure and brand recognition</strong> in Barcelona.</li>
+        <li class="win"><strong>US-college placement focus</strong> (they lean development/pro) + multi-country + analytics.</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Big but development-led.</strong> Win on the college-placement outcome and geographic optionality.</div>
+  </section>
+
+  <!-- ===================== ETURE ===================== -->
+  <section id="eture" class="tab-content">
+    <h2>Eture Sports</h2>
+    <p class="sub">Valencia placement specialist. <span class="pill p-they">Threat: High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Valencia / Vinaròs (Spain)</dd>
+        <dt>Founded</dt><dd>2015 (Miralles brothers)</dd>
+        <dt>Model</dt><dd>Gap Year + High School program (2026) + Eture FC + college recruiting agency</dd>
+        <dt>Academics</dt><dd>Online US HS partners; Missouri State undergrad certificate on-site</dd>
+        <dt>Outcomes</dt><dd>Claims 92% NCAA placement; $30M+ scholarships</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Valencia</span><span class="tag">NCAA agency DNA</span><span class="tag">Published stats</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Valencia overlap</strong> (IDA's flagship) + a hard, published placement record.</li>
+        <li class="lose"><strong>Recruiting-agency origin</strong> = deep NCAA relationships.</li>
+        <li class="win"><strong>Multi-country + pro pathway + brand-club ties + analytics.</strong></li>
+      </ul></div>
+    </div>
+    <div class="callout warn"><strong>Direct Valencia threat with proof.</strong> Their published 92%/$30M stats set the bar — IDA should match with its own verified numbers.</div>
+  </section>
+
+  <!-- ===================== ISA ===================== -->
+  <section id="isa" class="tab-content">
+    <h2>International Soccer Academy (ISA)</h2>
+    <p class="sub">Gap-year embedded in pro clubs. <span class="pill p-tie">Threat: Medium</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Spain (Algeciras, Girona FC)</dd>
+        <dt>Model</dt><dd>Residential gap-year embedded in pro clubs; ASU academic partner</dd>
+        <dt>Ages</dt><dd>~17–20 (gap year)</dd>
+        <dt>Pathway</dt><dd>US college + pro trials</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Gap year</span><span class="tag">Pro-club embed</span><span class="tag">ASU academics</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="tie"><strong>Authentic pro-club embedding</strong> for the gap-year segment.</li>
+        <li class="win"><strong>Broader age band + multi-country + integrated academics/analytics.</strong></li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Narrower (gap-year) focus.</strong> IDA's full-age, multi-country model is broader.</div>
+  </section>
+
+  <!-- ===================== IFX ===================== -->
+  <section id="ifx" class="tab-content">
+    <h2>IFX (International Fútbol X-Change)</h2>
+    <p class="sub">20+ year immersion + placement operator. <span class="pill p-tie">Threat: Medium</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Locations</dt><dd>Spain (Barcelona, Valencia, Madrid), Germany, England</dd>
+        <dt>Founded</dt><dd>2003</dd>
+        <dt>Model</dt><dd>Placement agency + academies; club immersion; accredited bachelor's; US/UK/Europe scholarship guidance</dd>
+        <dt>Ages</dt><dd>16+ (also youth)</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Multi-country (3)</span><span class="tag">Since 2003</span><span class="tag">Agency + academy</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="tie"><strong>Multi-country (ES/DE/ENG) + long tenure</strong> — one of the few with geographic spread.</li>
+        <li class="win"><strong>Integrated residency + academics + Taka analytics;</strong> IDA's US/Brazil/Italy adds destinations IFX lacks.</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Closest on geographic spread.</strong> Differentiate on integrated development + analytics + pro-club environments.</div>
+  </section>
+
+  <!-- ===================== BARCA ===================== -->
+  <section id="barca" class="tab-content">
+    <h2>Barça Residency Academy USA</h2>
+    <p class="sub">Brand-name US residency. <span class="pill p-tie">Threat: Med-High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Casa Grande, Arizona (USA)</dd>
+        <dt>Model</dt><dd>FC Barcelona-branded residential academy + ASU Prep academics</dd>
+        <dt>Ages</dt><dd>~13–18</dd>
+        <dt>Pathway</dt><dd>Both — "every grad → college or pro"</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">FC Barcelona brand</span><span class="tag">US residency</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>FC Barcelona brand halo</strong> + strong US residency + ASU Prep.</li>
+        <li class="win"><strong>True European immersion + multi-country + wider age band + analytics.</strong></li>
+        <li class="tie"><strong>US vs. Europe:</strong> competes for families weighing a domestic vs. abroad experience.</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Brand vs. breadth.</strong> IDA's answer is authentic overseas immersion across four countries plus the pro pathway.</div>
+  </section>
+
+  <!-- ===================== IMG ===================== -->
+  <section id="img" class="tab-content">
+    <h2>IMG Academy</h2>
+    <p class="sub">US mega-brand. <span class="pill p-tie">Threat: Medium</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Bradenton, Florida (USA)</dd>
+        <dt>Model</dt><dd>Elite boarding school + soccer academy + NCSA college recruiting</dd>
+        <dt>Ages</dt><dd>Grades 6–12 + post-grad</dd>
+        <dt>Pathway</dt><dd>College-first (some pro)</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Mega-scale</span><span class="tag">Boarding school</span><span class="tag">NCSA recruiting</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Scale, capital, brand and integrated recruiting (NCSA).</strong></li>
+        <li class="win"><strong>European immersion + pro pathway + multi-country</strong> — a fundamentally different (and cheaper) proposition than IMG's premium US campus.</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Different lane, same buyer.</strong> Families weighing "US mega-campus vs. real European academy" are your conversion battleground.</div>
+  </section>
+
+  <!-- ===================== i2i ===================== -->
+  <section id="i2i" class="tab-content">
+    <h2>i2i International Soccer Academy</h2>
+    <p class="sub">UK football + university degree. <span class="pill p-tie">Threat: Medium</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Locations</dt><dd>Newcastle (Northumbria) & Leeds (Leeds Beckett), UK</dd>
+        <dt>Model</dt><dd>Football + full UK undergraduate degree (multi-year); UEFA Pro/A coaches; BUCS</dd>
+        <dt>Ages</dt><dd>18+</dd>
+        <dt>Cost</dt><dd>~£33,500/yr, fixed 3 yrs (accepts US aid)</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">UK degree route</span><span class="tag">University partners</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="tie"><strong>UK degree + football</strong> — appeals to 18+ players wanting a full degree abroad.</li>
+        <li class="win"><strong>US-college placement + pro pathway + younger ages + multi-country;</strong> i2i is a UK-degree play, not a US-placement pipeline.</li>
+      </ul></div>
+    </div>
+    <div class="callout"><strong>Adjacent (UK-degree flank).</strong> Different end-goal; overlaps only on "UK football + academics."</div>
+  </section>
+
+  <!-- ===================== IOF ===================== -->
+  <section id="iof" class="tab-content">
+    <h2>IOF Academy</h2>
+    <p class="sub">Closest UK mirror to IDA. <span class="pill p-tie">Threat: Med-High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Abbotsholme School, Derbyshire (UK)</dd>
+        <dt>Model</dt><dd>Residential football + academics + gap year; SAT prep; USA College Tour + showcase games</dd>
+        <dt>Ages</dt><dd>12–19 (gap year 15–18)</dd>
+        <dt>Pathway</dt><dd>Pro football OR US soccer scholarship (packaged)</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">UK residency</span><span class="tag">US placement</span><span class="tag">Gap year</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Nearly identical model in the UK:</strong> residency + academics + explicit US-college placement, overlapping ages.</li>
+        <li class="win"><strong>Multi-country + pro-club environments + Taka analytics.</strong></li>
+      </ul></div>
+    </div>
+    <div class="callout warn"><strong>The UK head-to-head.</strong> IOF mirrors IDA's exact formula — differentiate on geographic breadth and integrated development.</div>
+  </section>
+
+  <!-- ===================== JUVENTUS ===================== -->
+  <section id="juventus" class="tab-content">
+    <h2>Juventus Residency Academy (Turin)</h2>
+    <p class="sub">Brand-name Italy residency. <span class="pill p-tie">Threat: Med-High</span></p>
+    <div class="grid g2">
+      <div class="card"><h3>Profile</h3><dl class="prof">
+        <dt>Location</dt><dd>Turin, Italy (residential campus, full board)</dd>
+        <dt>Model</dt><dd>Official Juventus residential full-season / semester program</dd>
+        <dt>Academics</dt><dd>ASU Prep Global + WINS Liceo Juventus + Italian language</dd>
+        <dt>Ages</dt><dd>14–19</dd>
+        <dt>Targets</dt><dd>Canada, North & South America</dd>
+        <dt>Pathway</dt><dd>Pro-development (Juventus method); weaker US-college engine</dd>
+      </dl>
+      <div style="margin-top:12px"><span class="tag">Juventus brand</span><span class="tag">Italy residency</span><span class="tag">ASU Prep</span></div>
+      </div>
+      <div class="card"><h3>Where they win / you win</h3><ul>
+        <li class="lose"><strong>Juventus brand + pro methodology + Italy immersion</strong> — the Italy analog to IDA's Rome ambitions, targeting the same Americas market.</li>
+        <li class="win"><strong>US-college placement engine</strong> (their relative gap) + multi-country + analytics.</li>
+      </ul></div>
+    </div>
+    <div class="callout warn"><strong>Brand-name Italy rival.</strong> Beat them on the college-placement outcome and the breadth of IDA's four-country network.</div>
+  </section>
+
+  <!-- ===================== STRATEGY ===================== -->
+  <section id="strategy" class="tab-content">
+    <h2>Strategic Takeaways</h2>
+    <p class="sub">Where IDA stands, and how to build its edge.</p>
+
+    <div class="card elev" style="margin-bottom:16px"><h3>The field, tiered by threat</h3><ul>
+      <li class="lose"><strong>High:</strong> SIA, Kaptiva, WOSPAC, Eture — Spain residency + academics + placement, same buyer.</li>
+      <li class="tie"><strong>Med-High:</strong> Marcet (scale), Barça Residency USA &amp; Juventus (brand halo), IOF (UK mirror).</li>
+      <li class="tie"><strong>Medium:</strong> ISA &amp; IFX (Spain immersion/agency), IMG (US mega-brand), i2i (UK-degree route).</li>
+    </ul></div>
+
+    <div class="grid g2">
+      <div class="card elev"><h3 style="color:var(--you)">Where you win / can press</h3><ul>
+        <li class="win"><strong>Multi-country footprint is unique.</strong> Spain + USA + Brazil + Italy/UK — no rival matches it. Market it as a global pathway, not a single academy.</li>
+        <li class="win"><strong>Dual college + pro pathway.</strong> Most rivals lean one way; IDA credibly serves both (de Leon → Real Madrid + 100+ college commits).</li>
+        <li class="win"><strong>Taka analytics as a product.</strong> A data/video layer few competitors offer — make it a visible selling point and retention tool.</li>
+        <li class="win"><strong>Pro-club partnerships</strong> (Cruzeiro, DME) = authentic environments + brand credibility to rival Barça/Juventus halo.</li>
+      </ul></div>
+      <div class="card elev"><h3 style="color:var(--they)">Risks / gaps to close</h3><ul>
+        <li class="lose"><strong>Placement proof.</strong> Eture publishes 92% NCAA / $30M; WOSPAC has an explicit SAT/NCAA engine. IDA needs published, verifiable placement data.</li>
+        <li class="lose"><strong>Spain is crowded &amp; commoditizing</strong> — six strong rivals in one country compressing price and attention.</li>
+        <li class="lose"><strong>Brand halo</strong> of Barça, Juventus, IMG pulls families on name alone.</li>
+        <li class="lose"><strong>UK coverage</strong> — IOF mirrors your model there; make sure the UK/Rome offer is as strong as Valencia.</li>
+      </ul></div>
+    </div>
+
+    <div class="card" style="margin-top:16px"><h3>Recommended next actions</h3><ul>
+      <li class="win"><strong>Publish placement outcomes</strong> — % to college, scholarship $ secured, pro signings — to match Eture/WOSPAC's proof and win the credibility battle.</li>
+      <li class="win"><strong>Lead with the global-pathway story</strong> — one academy, four countries, college <em>and</em> pro — the one thing no rival can copy.</li>
+      <li class="win"><strong>Productize Taka</strong> — make analytics a headline feature (and potential standalone revenue line).</li>
+      <li class="win"><strong>Deepen pro-club partnerships</strong> to counter the Barça/Juventus brand halo with authentic environments.</li>
+      <li class="win"><strong>Shore up UK &amp; Italy</strong> to blunt IOF and Juventus on their home turf.</li>
+      <li class="win"><strong>Refresh quarterly</strong> — the Spain academy market is fast-moving and price-competitive.</li>
+    </ul></div>
+
+    <div class="callout warn" style="margin-top:16px"><strong>Data caveat:</strong> Compiled from public sources (July 2026). Competitor placement rates, enrollment, alumni and pricing are largely self-reported marketing and not independently verified. Confirm before external/investor use.</div>
+  </section>
+
+  <footer>
+    <strong>Sources:</strong>
+    <a href="https://internationalda.com/">IDA</a> ·
+    <a href="https://soccerinteraction.com/">SIA Academy</a> ·
+    <a href="https://kaptivasportsacademy.com/">Kaptiva</a> ·
+    <a href="https://wospac.org/">WOSPAC</a> ·
+    <a href="https://marcetfootball.com/">Marcet</a> ·
+    <a href="https://eturesports.com/">Eture</a> ·
+    <a href="https://internationalsocceracademy.com/">ISA</a> ·
+    <a href="https://ifxsoccer.com/">IFX</a> ·
+    <a href="https://barcaresidencyacademyusa.com/">Barça Residency USA</a> ·
+    <a href="https://imgacademy.com/">IMG Academy</a> ·
+    <a href="https://i2isocceracademy.com/">i2i</a> ·
+    <a href="https://iofacademy.com/">IOF Academy</a> ·
+    <a href="https://jresidency.com/">Juventus Residency</a>
+    <div class="disclaimer">Compiled from public web sources on July 2, 2026 for internal strategic planning. Refresh quarterly.</div>
+  </footer>
+</div>
+
+<script>
+  const tabs=document.querySelectorAll('.tab');
+  const sections=document.querySelectorAll('.tab-content');
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+</script>
+</body>
+</html>
